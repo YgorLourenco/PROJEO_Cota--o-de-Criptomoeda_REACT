@@ -1,8 +1,12 @@
 import styled from '@emotion/styled'
+import {useState, useEffect} from 'react'
+import axios from 'axios'
 // eslint-disable-next-line 
 import { css, jsx } from '@emotion/react' // Corrigi o bug do @emotion
 import image from './cryptomonedas.png'
 import Formulario from './components/Formulario'
+import Cotacao from './components/Cotacao'
+import Spinner from './components/Spinner'
 
 const Concatenador = styled.div`
   max-width: 900px;
@@ -37,6 +41,43 @@ const Heading = styled.h1`
 `
 
 function App() {
+
+  const [moeda, guardarMoeda] = useState('')
+  const [criptomoeda, guardarCriptomoeda] = useState('')
+  const [resultado, guardarResultado] = useState({})
+  const [carregando, guardarCarregando] = useState(false)
+
+  useEffect(() => { 
+
+    const cotacaoCriptomoeda = async () => {
+      
+    if(moeda === '') return; // Previnir a primera execução
+
+    // Consultar a API para obter a cotação
+    const url = `https://min-api.cryptocompare.com/data/pricemultifull?fsyms=${criptomoeda}&tsyms=${moeda}`
+
+    const resultado = await axios.get(url)
+
+    // Mostrar o Spinner
+    guardarCarregando(true)
+
+    // Ocultar o Spinner e mostrar o resultado
+    setTimeout(() => { // Depois de 3 segundos vai ativar uma função que desativa o spinner e mostra o resultado
+      guardarCarregando(false)
+      // Guardar Cotação
+      guardarResultado(resultado.data.DISPLAY[criptomoeda][moeda])
+    }, 3000)
+
+    
+    }
+    cotacaoCriptomoeda()
+    
+  }, [moeda, criptomoeda])
+
+  // Mostrar Spinner o resultado
+  const componente = (carregando) ? <Spinner /> : <Cotacao resultado={resultado}/> // Se o carregando for verdadeiro mostrar o componente Spinner, se não o resultado
+  // Mostrar o resultado em {componente} dentro de return abaixo do componente Formulário
+
   return (
     <Concatenador>
       <div>
@@ -48,7 +89,12 @@ function App() {
       <div>
         <Heading>Cotação de Criptomoeda em um Instante</Heading>
 
-        <Formulario/>
+        <Formulario 
+          guardarMoeda={guardarMoeda}
+          guardarCriptomoeda={guardarCriptomoeda}
+        />
+        {componente}
+
       </div>
     </Concatenador>
   );
