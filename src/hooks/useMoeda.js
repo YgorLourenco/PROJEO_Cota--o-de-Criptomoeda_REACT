@@ -1,17 +1,19 @@
 // Esse Hook 'useMoeda' e um Custom Hook que serve para criar um useState customizavel para uma determinada tarefa
 import React, {Fragment, useState} from 'react'
 
-const useMoeda = () => {
+const useMoeda = (label, stateinicial, opcoes) => {
 
     // State do custom hook
-    const [state, atualizarState] = useState('');
+    const [state, atualizarState] = useState(stateinicial);
 
     const Selecionar = () => {
         <Fragment>
-            <label>Moeda</label>
+            <label>{label}</label>
             <select>
-                <option value='MXN'>Peso Mexicano</option>
-                <option value='BRL'>Real Brasileiro</option>
+                <option value=''>Selecione</option>
+                {opcoes.map(opcao => (
+                    <option key={opcao.codigo} value={opcao.codigo}>{opcao.nome}</option>
+                ))}
             </select>
         </Fragment>
     }
